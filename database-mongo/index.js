@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/test');
+mongoose.connect('mongodb://localhost/letshit', {useNewUrlParser: true});
 
 var db = mongoose.connection;
 
@@ -11,21 +11,28 @@ db.once('open', function() {
   console.log('mongoose connected successfully');
 });
 
-var itemSchema = mongoose.Schema({
-  quantity: Number,
-  description: String
+var userSchema = mongoose.Schema({
+  username: String,
+  firstName: String,
+  lastName: String,
+  password: String,
+  email: String,
+  city: String,
+  state: String,
+  country: String,
+  zipcode: Number
 });
 
-var Item = mongoose.model('Item', itemSchema);
+var User = mongoose.model('users', userSchema);
 
-var selectAll = function(callback) {
-  Item.find({}, function(err, items) {
-    if(err) {
-      callback(err, null);
-    } else {
-      callback(null, items);
-    }
-  });
-};
+// var selectAll = function(callback) {
+//   Item.find({}, function(err, items) {
+//     if(err) {
+//       callback(err, null);
+//     } else {
+//       callback(null, items);
+//     }
+//   });
+// };
 
-module.exports.selectAll = selectAll;
+module.exports.User = User;
