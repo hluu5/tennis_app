@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import $ from 'jquery';
 // import List from './components/List.jsx';
 import WelcomePage from './components/WelcomePage.jsx';
+import Authentication from './components/Authentication.jsx';
 // import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
 // import 'bootstrap/dist/js/bootstrap.js';
@@ -35,6 +36,7 @@ class App extends React.Component {
     return (<div>
       {/* <h1>Item List</h1> */}
       <WelcomePage item={this.state.items}/>
+      <Authentication />
     </div>)
   }
 }

@@ -69,7 +69,8 @@ export default class WelcomePage extends React.Component {
           </Nav>
           {/* </Collapse> */}
         </Navbar>
-        <img src="https://www.northamptonma.gov/ImageRepository/Document?documentID=9915"/>
+
+        {/* <img src="https://www.northamptonma.gov/ImageRepository/Document?documentID=9915"/> */}
       </div>
     );
   }

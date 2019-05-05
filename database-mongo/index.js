@@ -12,11 +12,11 @@ db.once('open', function() {
 });
 
 var userSchema = mongoose.Schema({
-  username: String,
-  firstName: String,
-  lastName: String,
-  password: String,
-  email: String,
+  username: {type: String, unique: true, dropDups: true, required: true},
+  firstName: {type: String, required: true},
+  lastName: {type: String, required: true},
+  password: {type: String, required: true},
+  email: {type: String, unique: true, dropDups: true, required: true},
   city: String,
   state: String,
   country: String,
@@ -25,14 +25,5 @@ var userSchema = mongoose.Schema({
 
 var User = mongoose.model('users', userSchema);
 
-// var selectAll = function(callback) {
-//   Item.find({}, function(err, items) {
-//     if(err) {
-//       callback(err, null);
-//     } else {
-//       callback(null, items);
-//     }
-//   });
-// };
 
 module.exports.User = User;
