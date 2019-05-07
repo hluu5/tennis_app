@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
-const bcrypt = require('bcrypt-nodejs');
+const bcrypt = require('bcrypt');
 const User = require('../database-mongo/index.js').User;
 const createUser = require('../database-mongo/helper.js').createUser;
 
@@ -10,16 +10,6 @@ const app = express();
 app.use(express.static(__dirname + '/../react-client/dist'));
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
-
-// app.get('/items', function (req, res) {
-//   items.selectAll(function(err, data) {
-//     if(err) {
-//       res.jsonStatus(500);
-//     } else {
-//       res.end(data);
-//     }
-//   });
-// });
 
 app.post('/create', function(req,res){
   createUser(req.body.username,
@@ -38,15 +28,15 @@ app.post('/create', function(req,res){
     },
     (err) => {
       if (err.code === 11000) {
-        console.log('Error: This user has already been created');
+        res.send('Error: This user has already been created');
       } else {
-        console.log(err)
+        res.json(err);
       }
       res.end();
     });
 })
 
-app.get('/checkUserName', (req, res)=>{
+app.post('/checkUserName', (req, res)=>{
   if(req.body.username) {
     User.find({username: req.body.username}).then((data)=>{
       if(data.length!==0) {
@@ -60,7 +50,29 @@ app.get('/checkUserName', (req, res)=>{
   }
 });
 
-app.get('/checkEmail', (req, res)=>{
+app.post('/checkPassword', (req, res)=>{
+  if(req.body.username) {
+    User.findOne({username: req.body.username}).exec().then((data)=>{
+      if (data === null) {
+        res.send('User does not exist')
+      } else {
+        // console.log('req.body.password', req.body.password, 'data.password',  data.password)
+        bcrypt.compare(req.body.password, data.password, function (err, response) {
+          // console.log("hash is correct" , response);
+          // console.log('err', err)
+          if(response === true) {
+            res.json('true');
+          } else {
+            res.json('false');
+          }
+        })
+      }
+    }).catch(err => console.log("ERRROR", err))
+  }
+});
+
+
+app.post('/checkEmail', (req, res)=>{
   if(req.body.email) {
     User.find({email: req.body.email}).then((data)=>{
       if(data.length!==0) {

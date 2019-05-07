@@ -1,4 +1,6 @@
 var mongoose = require('mongoose');
+var bcrypt = require('bcrypt');
+
 mongoose.connect('mongodb://localhost/letshit', {useNewUrlParser: true});
 
 var db = mongoose.connection;
@@ -23,7 +25,15 @@ var userSchema = mongoose.Schema({
   zipcode: Number
 });
 
-var User = mongoose.model('users', userSchema);
+userSchema.pre('save', function(next){
+  if(!this.isModified("password")) {
+    return next();
+  }
+  this.password = bcrypt.hashSync(this.password, 10);
+  next();
+})
+
+const User = mongoose.model('users', userSchema);
 
 
 module.exports.User = User;
