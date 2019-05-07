@@ -1,11 +1,12 @@
-const session = require('express-session');
-const bcrypt = require('bcrypt-nodejs');
+
 const axios = require('axios');
 
 import React from 'react';
 import { Form, FormGroup, Label, Input, FormFeedback, FormText, Button } from 'reactstrap';
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import SignupPage from './SignupPage.jsx';
 
-export default class SignupPage extends React.Component {
+export default class Login extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -28,31 +29,12 @@ export default class SignupPage extends React.Component {
 		})
 	}
 
-	// checkUsername() {
-	// 	const options = {
-	// 		username: this.state.username
-	// 	};
-	// 	axios.post('checkUserName', options).then(data => {
-	// 		console.log(data)
-	// 		if (data.data === 'false') {
-	// 			this.setState({
-	// 				usernameExist: false
-	// 			})
-	// 		} else if (data.data === 'username has already been used') {
-	// 			this.setState({
-	// 				usernameExist: true
-	// 			})
-	// 		}
-	// 	}).catch(err=>{console.log(err)})
-	// }
-
 	checkPassword() {
 		const options = {
 			username: this.state.username,
 			password: this.state.password
 		};
 		axios.post('/checkPassword', options).then(data => {
-			console.log(data);
 			if(data.data==='User does not exist') {
 				this.setState({
 					usernameExist: false
@@ -62,7 +44,8 @@ export default class SignupPage extends React.Component {
 					usernameExist: true,
 					correctPassword: false
 				})
-			} else if (data.data === 'true') {
+			}
+			else if (data.data === 'true') {
 				this.setState({
 					usernameExist: true,
 					correctPassword: true
@@ -71,10 +54,17 @@ export default class SignupPage extends React.Component {
 		}).catch(err=>{console.log(err)})
 	}
 
+
 	submitForm(){
 		// this.checkUsername();
 		this.checkPassword();
-		console.log(this.state.correctPassword)
+	}
+
+	componentDidUpdate(prevProps, prevState) {
+		console.log(prevState);
+		if(prevState.usernameExist !== this.state.usernameExist && prevState.correctPassword !== this.state.correctPassword) {
+			this.props.checkLogin(this.state.usernameExist, this.state.correctPassword);
+		}
 	}
 
 	render() {

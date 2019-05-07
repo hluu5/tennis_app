@@ -1,7 +1,4 @@
 import React from 'react';
-// import 'bootstrap';
-// import 'bootstrap/dist/css/bootstrap.css';
-// import 'bootstrap/dist/js/bootstrap.js';
 import $ from 'jquery';
 import Popper from 'popper.js';
 import {
@@ -17,21 +14,16 @@ import {
   DropdownMenu,
   DropdownItem,Button
 } from 'reactstrap';
+import Messaging from './Messaging.jsx';
+
 
 export default class WelcomePage extends React.Component {
   constructor(props) {
     super(props);
-
-    this.toggle = this.toggle.bind(this);
     this.state = {
-      isOpen: false
     };
   }
-  toggle() {
-    this.setState({
-      isOpen: !this.state.isOpen
-    });
-  }
+
   render() {
     return (
       <div>
@@ -49,7 +41,7 @@ export default class WelcomePage extends React.Component {
               {/* <NavLink href="https://github.com/reactstrap/reactstrap" style={{ fontFamily: 'Gugi, cursive' , color:'white'}}>Join</NavLink> */}
               <Button href="https://github.com/reactstrap/reactstrap" style={{ fontFamily: 'Gugi, cursive' , color:'white'}}>Join</Button>
             </NavItem>
-            <UncontrolledDropdown nav inNavbar>
+            {/* <UncontrolledDropdown nav inNavbar>
               <DropdownToggle nav caret>
                 Options
                 </DropdownToggle>
@@ -65,7 +57,7 @@ export default class WelcomePage extends React.Component {
                   Reset
                   </DropdownItem>
               </DropdownMenu>
-            </UncontrolledDropdown>
+            </UncontrolledDropdown> */}
           </Nav>
           {/* </Collapse> */}
         </Navbar>

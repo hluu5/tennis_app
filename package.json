@@ -27,6 +27,8 @@
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.17.2",
     "bootstrap": "^4.3.1",
+    "connect-mongo": "^2.0.3",
+    "cors": "^2.8.5",
     "express": "^4.15.0",
     "express-session": "^1.16.1",
     "jquery": "^3.4.1",
@@ -35,6 +37,7 @@
     "popper.js": "^1.15.0",
     "react": "^16.3.0",
     "react-dom": "^16.3.0",
+    "react-router-dom": "^5.0.0",
     "reactstrap": "^8.0.0"
   }
 }
