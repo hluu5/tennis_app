@@ -4,7 +4,7 @@ const axios = require('axios');
 import React from 'react';
 import { Form, FormGroup, Label, Input, FormFeedback, FormText, Button } from 'reactstrap';
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
-import SignupPage from './SignupPage.jsx';
+
 
 export default class Login extends React.Component {
 	constructor(props) {
@@ -56,7 +56,6 @@ export default class Login extends React.Component {
 
 
 	submitForm(){
-		// this.checkUsername();
 		this.checkPassword();
 	}
 

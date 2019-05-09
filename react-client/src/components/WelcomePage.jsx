@@ -14,7 +14,8 @@ import {
   DropdownMenu,
   DropdownItem,Button
 } from 'reactstrap';
-import Messaging from './Messaging.jsx';
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+
 
 
 export default class WelcomePage extends React.Component {
@@ -26,44 +27,31 @@ export default class WelcomePage extends React.Component {
 
   render() {
     return (
-      <div>
-        <Navbar style={{ backgroundColor: 'rgb(2,4,1)', padding:'2em'}} dark expand="md" sticky="top">
-          <img src="https://cdn4.eyeem.com/thumb/cb72e94d0db277b7a5f515683acd5a77e3490f6a-1526396544556/w/700" style={{
-            maxHeight: '4em', maxWidth: "4em", marginRight: "2em", marginTop: '0', marginBottom: '0',
-            borderRadius: '30%'
-          }} />
-          <NavbarBrand style={{ fontFamily: 'Gugi, cursive' , color:'white'}}>LET'S HIT!</NavbarBrand>
-          <Nav className="ml-auto" navbar>
-            <NavItem style={{marginLeft:'2em', marginRight:'2em'}}>
-              <NavLink href="/components/" style={{ fontFamily: 'Gugi, cursive' , color:'white'}}>Find</NavLink>
-            </NavItem>
-            <NavItem>
-              {/* <NavLink href="https://github.com/reactstrap/reactstrap" style={{ fontFamily: 'Gugi, cursive' , color:'white'}}>Join</NavLink> */}
-              <Button href="https://github.com/reactstrap/reactstrap" style={{ fontFamily: 'Gugi, cursive' , color:'white'}}>Join</Button>
-            </NavItem>
-            {/* <UncontrolledDropdown nav inNavbar>
-              <DropdownToggle nav caret>
-                Options
-                </DropdownToggle>
-              <DropdownMenu right>
-                <DropdownItem>
-                  Option 1
-                  </DropdownItem>
-                <DropdownItem>
-                  Option 2
-                  </DropdownItem>
-                <DropdownItem divider />
-                <DropdownItem>
-                  Reset
-                  </DropdownItem>
-              </DropdownMenu>
-            </UncontrolledDropdown> */}
-          </Nav>
-          {/* </Collapse> */}
-        </Navbar>
+      <Router>
 
-        {/* <img src="https://www.northamptonma.gov/ImageRepository/Document?documentID=9915"/> */}
-      </div>
+        <div>
+          <Navbar style={{ backgroundColor: 'rgb(2,4,1)', padding:'2em'}} dark expand="md" sticky="top">
+            <img src="https://cdn4.eyeem.com/thumb/cb72e94d0db277b7a5f515683acd5a77e3490f6a-1526396544556/w/700" style={{
+              maxHeight: '4em', maxWidth: "4em", marginRight: "2em", marginTop: '0', marginBottom: '0',
+              borderRadius: '30%'
+            }} />
+            <NavbarBrand style={{ fontFamily: 'Gugi, cursive' , color:'white'}}>LET'S HIT!</NavbarBrand>
+            <Nav className="ml-auto" navbar>
+              <NavItem style={{marginLeft:'2em', marginRight:'2em'}}>
+                <NavLink href="/components/" style={{ fontFamily: 'Gugi, cursive' , color:'white'}}>Find</NavLink>
+              </NavItem>
+              <NavItem>
+                {/* <NavLink href="https://github.com/reactstrap/reactstrap" style={{ fontFamily: 'Gugi, cursive' , color:'white'}}>Join</NavLink> */}
+                <Button href="/join" style={{ fontFamily: 'Gugi, cursive' , color:'white'}}>
+                  <Link to='/join' >Join</Link>
+                </Button>
+              </NavItem>
+            </Nav>
+          </Navbar>
+
+          {/* <img src="https://www.northamptonma.gov/ImageRepository/Document?documentID=9915"/> */}
+        </div>
+      </Router>
     );
   }
 }

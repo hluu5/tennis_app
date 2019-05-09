@@ -1,5 +1,7 @@
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt');
+const faker = require('faker');
+const randomImage = faker.image.avatar;
 
 mongoose.connect('mongodb://localhost/letshit', {useNewUrlParser: true});
 
@@ -22,7 +24,10 @@ var userSchema = mongoose.Schema({
   city: String,
   state: String,
   country: String,
-  zipcode: Number
+  zipcode: Number,
+  ntrp: Number,
+  userThumbnail: String,
+  strengths: [String]
 });
 
 userSchema.pre('save', function(next){
@@ -30,11 +35,20 @@ userSchema.pre('save', function(next){
     return next();
   }
   this.password = bcrypt.hashSync(this.password, 10);
+  this.userThumbnail = randomImage();
   next();
 })
 
 const User = mongoose.model('users', userSchema);
 
+var messageSchema = mongoose.Schema({
+  user: {type: String, required: true},
+  roomUsers: {type: String, required: true},
+  message: String
+}, {timestamps: true});
+
+const Message = mongoose.model('messages', messageSchema);
 
 module.exports.User = User;
 module.exports.db = db;
+module.exports.Message = Message;
