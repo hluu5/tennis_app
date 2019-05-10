@@ -1,8 +1,10 @@
 import React from 'react';
 import axios from 'axios';
-import { Media, ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem, UncontrolledDropdown, Navbar } from 'reactstrap';
+import { Media, ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem, UncontrolledDropdown,
+	Navbar, InputGroup, InputGroupText, InputGroupAddon, Input } from 'reactstrap';
 // const faker = require('faker');
 // const randomImage = faker.image.avatar;
+import Map from './Map.jsx';
 
 class UserList extends React.Component {
 	constructor(props) {
@@ -12,12 +14,25 @@ class UserList extends React.Component {
 			dropDownNTRP: false,
 			dropDownStrengths: false,
 			username: null,
+			currentZipcode: null,
+			currentLocation: [],
 			list: [],
 			link: null,
 			strengths: [],
 		}
 		this.toggleNTRP = this.toggleNTRP.bind(this);
 		this.toggleStrengths = this.toggleStrengths.bind(this);
+		this.getUserLocation = this.getUserLocation.bind(this);
+		this.handleKeyPress = this.handleKeyPress.bind(this);
+	}
+
+	getOtherUsersLocations() {
+		// this.state.list.map(e=>{
+		// 	axios.post('/location', {zipcode: e.zipcode}).then((data)=>{
+		// 		console.log("lat and long", data);
+		// 	})
+		// })
+		console.log(this.state.list)
 	}
 
 	getUserList() {
@@ -26,7 +41,8 @@ class UserList extends React.Component {
 			this.setState({
 				list: data.data
 			})
-			console.log(this.state.list)
+		}).then(()=>{
+			this.getOtherUsersLocations();
 		}).catch(err => console.log(err))
 	}
 
@@ -35,7 +51,7 @@ class UserList extends React.Component {
 			desiredLevel: level
 		})
 		await this.getUserList();
-		await console.log(this.state.list)
+		// await console.log(this.state.list)
 	}
 
 	async setDesiredStrengths(e) {
@@ -44,7 +60,7 @@ class UserList extends React.Component {
 			await this.setState(prevState => ({
 				strengths: newStrengthsState.sort()
 			}))
-			await console.log(this.state.strengths)
+			// await console.log(this.state.strengths)
 		}
 		await this.getUserList();
 
@@ -61,6 +77,7 @@ class UserList extends React.Component {
 			dropDownStrengths: !this.state.dropDownStrengths
 		});
 	}
+
 
 	getUserName() {
 		axios.get('/getUserName').then(data=>{
@@ -79,10 +96,39 @@ class UserList extends React.Component {
 		})
 	}
 
+	changeZipcode(e) {
+		this.setState({
+			currentZipcode: e
+		})
+	}
+
+	getUserLocation() {
+		axios.post('/location', {zipcode: this.state.currentZipcode})
+		.then(data=>{
+			let newCurrentLocation = [];
+			for (let i in data.data) {
+				newCurrentLocation.push(data.data[i])
+			}
+			this.setState({
+				currentLocation: newCurrentLocation
+			})
+			console.log('inside UserList', this.state.currentLocation)
+		})
+		.catch(err=>console.log(err))
+	}
+
+
+	handleKeyPress(e) {
+    if (e.key === 'Enter') {
+      this.getUserLocation();
+    }
+	}
+
 	componentDidMount() {
 		this.getUserName();
 		this.getMessagingService();
 	}
+
 
 	render() {
 		return (
@@ -125,12 +171,20 @@ class UserList extends React.Component {
 								</DropdownMenu>
 							</ButtonDropdown>
 						</UncontrolledDropdown>
-					</Navbar>
 
-						<div style={{fontFamily: 'Gugi, cursive'}}>Desired Level: {this.state.desiredLevel}</div>
-						<div style={{fontFamily: 'Gugi, cursive'}}>Desired Strengths: {
-							this.state.strengths.map(e=>{return (<span key={e}>{e + ", "}</span>)})
-						}</div>
+					</Navbar>
+					<InputGroup style={{margin: '0.8em'}}>
+						<InputGroupAddon addonType="prepend">
+							<InputGroupText>Zipcode: </InputGroupText>
+						</InputGroupAddon>
+						<Input onChange={(e) => { this.changeZipcode(e.target.value) }}
+							value = {this.state.currentZipcode || ''}
+							onKeyPress={(e)=>{this.handleKeyPress(e)}} />
+					</InputGroup>
+					<div style={{fontFamily: 'Gugi, cursive', margin: '0.8em'}}>Desired Level: {this.state.desiredLevel}</div>
+					<div style={{fontFamily: 'Gugi, cursive', margin: '0.8em'}}>Desired Strengths: {
+						this.state.strengths.map(e=>{return (<span key={e}>{e + ", "}</span>)})
+					}</div>
 
 				</div>
 				<br/>
@@ -156,6 +210,7 @@ class UserList extends React.Component {
 						)
 					})
 				}
+				<Map currentLocation={this.state.currentLocation}/>
 			</div>
 				)
 			}

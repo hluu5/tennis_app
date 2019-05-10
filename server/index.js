@@ -9,7 +9,8 @@ const createMessage = require('../database-mongo/helper.js').createMessage;
 const db = require('../database-mongo/index.js').db;
 const app = express();
 // const cors = require('cors');
-
+const key = require('../env.js').key;
+const axios = require('axios');
 // app.use(cors({origin: 'http://localhost:3001/'}));
 
 app.use(express.static(__dirname + '/../react-client/dist'));
@@ -154,6 +155,7 @@ app.post('/createMessage', (req,res)=>{
 app.post('/usersList',(req,res)=>{
   console.log(req);
   if (req.session.user) {
+
     if(req.body.ntrp === null) {
       User.find({
         $and: [
@@ -164,18 +166,34 @@ app.post('/usersList',(req,res)=>{
       .then(data=>{res.json(data)})
       .catch(err=>res.json(err))
     } else {
-      User.find({
-        $and: [
-          {ntrp: req.body.ntrp},
-          {strengths: {$all: req.body.strengths}}
-        ]
-      })
-      .then(data=>{res.json(data)})
-      .catch(err=>res.json(err))
+      // console.log("REQ.BODY.LENGTH", req.body.strengths)
+      if (req.body.strengths.length === 0) {
+        User.find({
+          ntrp: req.body.ntrp
+        })
+          .then(data => { res.json(data) })
+          .catch(err => res.json(err))
+      } else {
+        User.find({
+          $and: [
+            {ntrp: req.body.ntrp},
+            {strengths: {$all: req.body.strengths}}
+          ]
+        })
+        .then(data=>{res.json(data)})
+        .catch(err=>res.json(err))
+      }
     }
   } else {
     res.json('User need to login first')
   }
+})
+
+app.post('/location', (req, res)=>{
+  console.log(req.body);
+  axios.get(`https://maps.googleapis.com/maps/api/geocode/json?key=${key}&address=${req.body.zipcode}`)
+  .then(data=>res.json(data.data.results[0].geometry.location))
+  .catch(err=>res.json(err))
 })
 
 app.listen(3001, function() {

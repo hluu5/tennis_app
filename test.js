@@ -1,6 +1,8 @@
 const User = require('./database-mongo/index.js').User;
 const bcrypt = require('bcrypt');
 const axios = require('axios');
+const key = require('./env.js').key;
+console.log(key);
 // User.findOne({
 //     username: "Mail"
 // }).exec().then(data=>console.log("DATAAAA", data)).catch(err=>console.log("ERRROR", err))
@@ -21,11 +23,17 @@ const axios = require('axios');
 // const randomImage = faker.image.avatar();
 // console.log(randomImage)
 
-User.find({
-    $and: [
-      {ntrp: {$gte: 3, $lt: 6} },
-      {strengths: {$all: ["Grinder"]}}
-    ]
-  })
-  .then(data=>{console.log(data)})
-  .catch(err=>console.log(err))
+// User.find({
+//     $and: [
+//       {ntrp: {$gte: 3, $lt: 6} },
+//       {strengths: {$all: ["Grinder"]}}
+//     ]
+//   })
+//   .then(data=>{console.log(data)})
+//   .catch(err=>console.log(err))
+
+axios.post(`http://localhost:3001/location`, {
+		zipcode: 92867
+})
+	.then(data => console.log(data.data))
+	.catch(err => console.log(err))
