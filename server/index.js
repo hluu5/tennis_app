@@ -153,7 +153,7 @@ app.post('/createMessage', (req,res)=>{
 })
 
 app.post('/usersList',(req,res)=>{
-  console.log(req);
+  // console.log(req);
   if (req.session.user) {
 
     if(req.body.ntrp === null) {

@@ -137,9 +137,10 @@ export default class SignupPage extends React.Component {
 		}
 	}
 
-	submitForm() {
-		this.checkUser(this.state.username);
-		this.checkEmail(this.state.email);
+	async submitForm() {
+		await this.checkUser(this.state.username);
+		await this.checkEmail(this.state.email);
+		// console.log(this.state)
 		let options = {
 			username: this.state.username,
 			firstName: this.state.firstName,
@@ -153,7 +154,7 @@ export default class SignupPage extends React.Component {
 			ntrp: this.state.ntrp,
 			strengths: this.state.strengths
 		}
-		axios.post('/create', options)
+		await axios.post('/create', options)
 			.then(data => {
 				if(data.data.errors) {
 					console.log("error:", data.data.errors)

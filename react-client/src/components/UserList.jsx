@@ -16,6 +16,7 @@ class UserList extends React.Component {
 			username: null,
 			currentZipcode: null,
 			currentLocation: [],
+			otherUsersLocations: [],
 			list: [],
 			link: null,
 			strengths: [],
@@ -24,25 +25,37 @@ class UserList extends React.Component {
 		this.toggleStrengths = this.toggleStrengths.bind(this);
 		this.getUserLocation = this.getUserLocation.bind(this);
 		this.handleKeyPress = this.handleKeyPress.bind(this);
+		this.getOtherUsersLocations = this.getOtherUsersLocations.bind(this);
 	}
 
-	getOtherUsersLocations() {
-		// this.state.list.map(e=>{
-		// 	axios.post('/location', {zipcode: e.zipcode}).then((data)=>{
-		// 		console.log("lat and long", data);
-		// 	})
-		// })
-		console.log(this.state.list)
+	getOtherUsersLocations(state) {
+		this.state.list.map(function(e){
+			console.log(state.state);
+			axios.post('/location', {zipcode: e.zipcode}).then((data)=>{
+				console.log(state.state)
+				var newState = state.state.otherUsersLocations.concat(data.data);
+				state.setState({
+					otherUsersLocations: newState
+				})
+			})
+			.then(()=>{
+				console.log("Get Other Location", state.state.otherUsersLocations)
+			})
+			.catch(err=>{console.log(err)})
+
+		})
 	}
 
 	getUserList() {
 		axios.post('/usersList', { ntrp: this.state.desiredLevel , strengths: this.state.strengths }).then((data) => {
-			console.log(data);
+			// console.log(data);
 			this.setState({
 				list: data.data
 			})
-		}).then(()=>{
-			this.getOtherUsersLocations();
+		})
+		.then(()=>{
+			this.getOtherUsersLocations(this);
+			// console.log(this.state.list)
 		}).catch(err => console.log(err))
 	}
 
@@ -201,16 +214,20 @@ class UserList extends React.Component {
         					height: '2em',
         					width: '2em',
         					display: 'inline'}} />
-                <div style={{display: 'inline', padding:'1em', fontWeight: 'bold'}}>Username: {e.username}</div>
-                <div style={{display: 'inline', padding:'1em'}}>First Name: {e.firstName}</div>
-                <div style={{display: 'inline', padding:'1em'}}>Last Name: {e.lastName}</div>
-                <div style={{display: 'inline', padding:'1em'}}>City: {e.city}</div>
-                <div style={{display: 'inline', padding:'1em'}}>Ntrp: {e.ntrp}</div>
+                <div style={{display: 'inline', padding:'1em'}}><strong>Username: </strong>{e.username}</div>
+                <div style={{display: 'inline', padding:'1em'}}><strong>Name: </strong>{e.firstName + " " +e.lastName}</div>
+                <div style={{display: 'inline', padding:'1em'}}><strong>City: </strong>{e.city}</div>
+                <div style={{display: 'inline', padding:'1em'}}><strong>Ntrp: </strong>{e.ntrp}</div>
+                <div style={{display: 'inline', padding:'1em'}}><strong>Strengths: </strong>{
+									e.strengths.map((str)=>{
+										return (<span key={str}>{str+", "}</span>)
+									})
+									}</div>
             	</div>
 						)
 					})
 				}
-				<Map currentLocation={this.state.currentLocation}/>
+				<Map currentLocation={this.state.currentLocation} otherUsersLocations={this.state.otherUsersLocations} usersList={this.state.list}/>
 			</div>
 				)
 			}

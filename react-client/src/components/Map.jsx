@@ -10,6 +10,7 @@ export default class Map extends React.Component {
 		super(props);
 		this.state = {
 			userLocation: null,
+			usersLocations: null,
 		}
 	}
 
@@ -18,37 +19,64 @@ export default class Map extends React.Component {
 	// 	.then(data=>{console.log(data)})
 	// 	.catch(err=>console.log(err))
 	// }
-
-	changeMapLocation() {
-
+	setUsersLocations() {
+		this.setState({
+			usersLocations: this.props.otherUsersLocations
+		})
+		this.addMarker();
 	}
 
-	initMap(location) {
+	addMarker() {
+		// if(this.props.otherUsersLocations.length === 0) {
+		// 	L.marker([this.state.userLocation[0],this.state.userLocation[1]])
+		// 		.bindPopup(`${this.props.list[i].firstName} ${this.props.list[i].lastName}`)
+		// 		.addTo(map);
+		// } else {"
+			console.log("addMarker, this.props.otherUserLocation",this.props.otherUsersLocations)
+			if(this.props.otherUsersLocations.length === 0) {
+				console.log("state is empty");
+				return;
+			} else {
+				this.props.otherUsersLocations.map((e,i)=>{
+					let location = [e.lat, e.lng];
+					L.marker(location)
+						.bindPopup(`${this.props.list[i].firstName} ${this.props.list[i].lastName}`)
+						.addTo(map);
+					console.log('location of props', location);
+				})
+			}
+		// }
+	}
+
+	initMap(userlocation, userslocations) {
 		document.getElementById('weathermap').innerHTML = "<div id='map' style='width: 100%; height: 100%;'></div>";
 		var map = L.map('map');
-		map.setView(location || [47.70, 13.35], 12 );
+		map.setView(userlocation || [47.70, 13.35], 12 );
 		var osm_mapnik = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 			maxZoom: 19,
 			attribution: '&copy; OSM Mapnik <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 		}).addTo(map);
-		// 33.8186385, -117.8282121
-		// // for (var i = 0; i <= 10; i++) {
-		// 	let lat = 31.81+i;
-		// 	let long = -117.81;
-			L.marker([33.77,-117.93])
-				.bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-				.addTo(map);
-			L.marker([33.83,-117.91])
-				.bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-				.addTo(map);
-			L.marker([33.81,-117.81])
-				.bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-				.addTo(map);
+		if (userslocations===null || userslocations === undefined) {
+			console.log("no marker added");
+		} else {
+			console.log('Userlocation', userslocations)
+			for (let loc = 0; loc < userslocations.length; loc ++){
+				let location = new Promise((resolve,reject)=>{
+					let latlong = resolve([userslocations[loc].lat, userslocations[loc].lng]);
+				}).then(data=>{
+					console.log(data)
+					L.marker(data)
+								.bindPopup(`${this.props.usersList[loc].firstName} ${this.props.usersList[loc].lastName}`)
+								.addTo(map);
+				}).catch(err=>console.log(err))
+				console.log(location)
+			}
+		}
 	}
 
 	componentDidMount(){
 		// Initialize the map
-		this.initMap(this.state.userLocation);
+		this.initMap(this.state.userLocation, this.state.usersLocations);
 	}
 
 	componentDidUpdate(prevProps, prevState) {
@@ -58,7 +86,13 @@ export default class Map extends React.Component {
 				userLocation: this.props.currentLocation
 			})
 		}
-		this.initMap(this.state.userLocation);
+		if (prevProps.otherUsersLocations !== this.props.otherUsersLocations) {
+			// this.setUsersLocations();
+			this.setState({
+				usersLocations: this.props.otherUsersLocations
+			})
+		}
+		this.initMap(this.state.userLocation, this.state.usersLocations);
 		console.log(this.state.userLocation);
 	}
 

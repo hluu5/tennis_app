@@ -33,7 +33,7 @@ console.log(key);
 //   .catch(err=>console.log(err))
 
 axios.post(`http://localhost:3001/location`, {
-		zipcode: 92867
+		zipcode: 92864
 })
 	.then(data => console.log(data.data))
 	.catch(err => console.log(err))
