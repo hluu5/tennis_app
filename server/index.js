@@ -22,21 +22,21 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
   cookie: {
-		maxAge: 360000
-	},
-	store: new MongoStore({ mongooseConnection: db })
+    maxAge: 360000
+  },
+  store: new MongoStore({ mongooseConnection: db })
 }))
 
 
-app.post('/create', function(req,res){
+app.post('/create', function (req, res) {
   createUser(req.body.username,
-		req.body.firstName,
-		req.body.lastName,
-		req.body.password,
-		req.body.email,
-		req.body.city,
-		req.body.state,
-		req.body.country,
+    req.body.firstName,
+    req.body.lastName,
+    req.body.password,
+    req.body.email,
+    req.body.city,
+    req.body.state,
+    req.body.country,
     Number(req.body.zipcode),
     req.body.ntrp,
     req.body.strengths,
@@ -55,15 +55,15 @@ app.post('/create', function(req,res){
     });
 })
 
-app.post('/checkUserName', (req, res)=>{
-  if(req.body.username) {
-    User.find({username: req.body.username}).then((data)=>{
-      if(data.length!==0) {
+app.post('/checkUserName', (req, res) => {
+  if (req.body.username) {
+    User.find({ username: req.body.username }).then((data) => {
+      if (data.length !== 0) {
         res.json('username has already been used');
       } else {
         res.json('false');
       }
-    }).catch(err=>{
+    }).catch(err => {
       res.json(err);
     })
   }
@@ -71,23 +71,24 @@ app.post('/checkUserName', (req, res)=>{
 
 app.get('/isLoggedIn', (req, res) => {
   if (req.session.user) {
+    req.session.pageNumber = 1;
     res.json('true');
   } else {
     res.json('false');
   }
 })
 
-app.post('/checkPassword', (req, res)=>{
-  if(req.body.username) {
-    User.findOne({username: req.body.username}).exec().then((data)=>{
+app.post('/checkPassword', (req, res) => {
+  if (req.body.username) {
+    User.findOne({ username: req.body.username }).exec().then((data) => {
       if (data === null) {
         res.send('User does not exist')
       } else {
         // console.log('req.body.password', req.body.password, 'data.password',  data.password)
         bcrypt.compare(req.body.password, data.password, function (err, response) {
-          console.log("hash is correct" , response);
+          console.log("hash is correct", response);
           // console.log('err', err)
-          if(response === true) {
+          if (response === true) {
             // Do something with session
             req.session.user = req.body.username;
             res.json('true');
@@ -101,37 +102,37 @@ app.post('/checkPassword', (req, res)=>{
   }
 });
 
-app.post('/checkEmail', (req, res)=>{
-  if(req.body.email) {
-    User.find({email: req.body.email}).then((data)=>{
-      if(data.length!==0) {
+app.post('/checkEmail', (req, res) => {
+  if (req.body.email) {
+    User.find({ email: req.body.email }).then((data) => {
+      if (data.length !== 0) {
         res.json('email has already been used');
       } else {
         res.json('false');
       }
-    }).catch(err=>{
+    }).catch(err => {
       res.end(err);
     })
   }
 })
 
-app.get('/getUserName', (req, res)=>{
-  if(req.session.user) {
+app.get('/getUserName', (req, res) => {
+  if (req.session.user) {
     res.json(req.session.user)
   } else {
     res.json("Session Expired, Please login again")
   }
 })
 
-app.get('/getMessagingLink', (req, res)=>{
-  if(req.session.user) {
+app.get('/getMessagingLink', (req, res) => {
+  if (req.session.user) {
     res.json('http://localhost:3002')
   } else {
     res.json("Session Expired, Please login again")
   }
 })
 
-app.post('/createMessage', (req,res)=>{
+app.post('/createMessage', (req, res) => {
   // console.log(req)
   if (req.session.user) {
     createMessage(
@@ -152,51 +153,74 @@ app.post('/createMessage', (req,res)=>{
   }
 })
 
-app.post('/usersList',(req,res)=>{
+app.post('/usersList', (req, res) => {
   // console.log(req);
-  if (req.session.user) {
+  let pointA = { latitude: null, longitude: null };
+  let pointB = { latitude: null, longitude: null };
+  async function getDistance(zipcode) {
+    await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?key=${key}&address=${req.body.zipcode || null}`)
+      .then(data => {
+        pointA.latitude = data.data.results[0].geometry.location.lat;
+        pointA.longitude = data.data.results[0].geometry.location.lng;
+      })
+      .catch(err => console.log(err))
 
-    if(req.body.ntrp === null) {
+    await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?key=${key}&address=${zipcode}`)
+      .then(data => {
+        pointB.latitude = data.data.results[0].geometry.location.lat;
+        pointB.longitude = data.data.results[0].geometry.location.lng;
+      })
+      .catch(err => console.log(err))
+
+    //distance between pointA to pointB converted from km to miles
+    return (geolib.getDistance(
+      pointA,
+      pointB,
+      1, 1
+    ) / 1.6 / 1000)
+  }
+
+    if (req.session.user) {
       User.find({
         $and: [
-          {ntrp: {$gte: 3, $lt: 6}},
-          {strengths: {$all: req.body.strengths}}
+          { ntrp: req.body.ntrp === null ? { $exists: true } : req.body.ntrp },
+          { strengths: req.body.strengths.length === 0 ? { $exists: true } : { $all: req.body.strengths } }
+          // { zipcode: }
         ]
-      })
-      .then(data=>{res.json(data)})
-      .catch(err=>res.json(err))
+      }).limit(10)
+        .skip((req.session.pageNumber - 1)*10 || 0)
+        .then(data => {
+          // req.user.pagenumber = (req.user.pagenumber - 1) * 10 || 1;
+          res.json(data)
+        })
+        .catch(err => res.json(err))
     } else {
-      // console.log("REQ.BODY.LENGTH", req.body.strengths)
-      if (req.body.strengths.length === 0) {
-        User.find({
-          ntrp: req.body.ntrp
-        })
-          .then(data => { res.json(data) })
-          .catch(err => res.json(err))
-      } else {
-        User.find({
-          $and: [
-            {ntrp: req.body.ntrp},
-            {strengths: {$all: req.body.strengths}}
-          ]
-        })
-        .then(data=>{res.json(data)})
-        .catch(err=>res.json(err))
-      }
+      res.json('User need to login first')
     }
-  } else {
-    res.json('User need to login first')
+  })
+
+app.post('/setNextPaginationPage', (req,res)=>{
+  if(req.session.user) {
+    req.session.pageNumber = req.body.page
   }
+  res.status(200).json({"Current Page": req.session.pageNumber})
 })
 
-app.post('/location', (req, res)=>{
+app.post('/setPrevPaginationPage', (req,res)=>{
+  if(req.session.user) {
+    req.session.pageNumber = req.body.page
+  }
+  res.status(200).json({"Current Page": req.session.pageNumber})
+})
+
+app.post('/location', (req, res) => {
   console.log(req.body);
   axios.get(`https://maps.googleapis.com/maps/api/geocode/json?key=${key}&address=${req.body.zipcode}`)
-  .then(data=>res.json(data.data.results[0].geometry.location))
-  .catch(err=>res.json(err))
+    .then(data => res.json(data.data.results[0].geometry.location))
+    .catch(err => res.json(err))
 })
 
-app.listen(3001, function() {
+app.listen(3001, function () {
   console.log('listening on port 3001!');
 });
 

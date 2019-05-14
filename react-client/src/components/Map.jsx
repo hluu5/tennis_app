@@ -66,8 +66,10 @@ export default class Map extends React.Component {
 				}).then(data=>{
 					console.log(data)
 					L.marker(data)
-								.bindPopup(`${this.props.usersList[loc].firstName} ${this.props.usersList[loc].lastName}`)
+								.bindPopup(`<p>${this.props.usersList[loc].firstName} ${this.props.usersList[loc].lastName}
+								<br />${this.props.usersList[loc].city}</p>`)
 								.addTo(map);
+
 				}).catch(err=>console.log(err))
 				console.log(location)
 			}
@@ -101,7 +103,8 @@ export default class Map extends React.Component {
 		return (
 			<div id="weathermap" style={{
 				width: "500px",
-				height: "300px"
+				height: "300px",
+				marginBottom:'2em'
 			}}></div>
 		)
 	}

@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import WelcomePage from './components/WelcomePage.jsx';
 import SignupPage from './components/SignupPage.jsx';
 import UserList from './components/UserList.jsx';
 import Login from './components/Login.jsx';

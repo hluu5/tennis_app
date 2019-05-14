@@ -1,7 +1,10 @@
 import React from 'react';
 import axios from 'axios';
-import { Media, ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem, UncontrolledDropdown,
-	Navbar, InputGroup, InputGroupText, InputGroupAddon, Input } from 'reactstrap';
+import {
+	Media, ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem,
+	UncontrolledDropdown, Navbar, InputGroup, InputGroupText, InputGroupAddon,
+	Input, Pagination, PaginationItem, PaginationLink
+} from 'reactstrap';
 // const faker = require('faker');
 // const randomImage = faker.image.avatar;
 import Map from './Map.jsx';
@@ -20,6 +23,7 @@ class UserList extends React.Component {
 			list: [],
 			link: null,
 			strengths: [],
+			page: 1
 		}
 		this.toggleNTRP = this.toggleNTRP.bind(this);
 		this.toggleStrengths = this.toggleStrengths.bind(this);
@@ -29,34 +33,33 @@ class UserList extends React.Component {
 	}
 
 	getOtherUsersLocations(state) {
-		this.state.list.map(function(e){
+		this.state.list.map(function (e) {
 			console.log(state.state);
-			axios.post('/location', {zipcode: e.zipcode}).then((data)=>{
+			axios.post('/location', { zipcode: e.zipcode }).then((data) => {
 				console.log(state.state)
 				var newState = state.state.otherUsersLocations.concat(data.data);
 				state.setState({
 					otherUsersLocations: newState
 				})
 			})
-			.then(()=>{
-				console.log("Get Other Location", state.state.otherUsersLocations)
-			})
-			.catch(err=>{console.log(err)})
-
+				.then(() => {
+					console.log("Get Other Location", state.state.otherUsersLocations)
+				})
+				.catch(err => { console.log(err) })
 		})
 	}
 
 	getUserList() {
-		axios.post('/usersList', { ntrp: this.state.desiredLevel , strengths: this.state.strengths }).then((data) => {
+		axios.post('/usersList', { ntrp: this.state.desiredLevel, strengths: this.state.strengths }).then((data) => {
 			// console.log(data);
 			this.setState({
 				list: data.data
 			})
 		})
-		.then(()=>{
-			this.getOtherUsersLocations(this);
-			// console.log(this.state.list)
-		}).catch(err => console.log(err))
+			.then(() => {
+				this.getOtherUsersLocations(this);
+				// console.log(this.state.list)
+			}).catch(err => console.log(err))
 	}
 
 	async setDesiredLevel(level) {
@@ -93,16 +96,16 @@ class UserList extends React.Component {
 
 
 	getUserName() {
-		axios.get('/getUserName').then(data=>{
+		axios.get('/getUserName').then(data => {
 			// console.log('USERNAME', data)
 			this.setState({
 				username: data.data
 			})
-		}).catch(err=>console.log(err))
+		}).catch(err => console.log(err))
 	}
 
 	getMessagingService() {
-		axios.get('/getMessagingLink').then(data=>{
+		axios.get('/getMessagingLink').then(data => {
 			this.setState({
 				link: data.data
 			})
@@ -116,25 +119,49 @@ class UserList extends React.Component {
 	}
 
 	getUserLocation() {
-		axios.post('/location', {zipcode: this.state.currentZipcode})
-		.then(data=>{
-			let newCurrentLocation = [];
-			for (let i in data.data) {
-				newCurrentLocation.push(data.data[i])
-			}
-			this.setState({
-				currentLocation: newCurrentLocation
+		axios.post('/location', { zipcode: this.state.currentZipcode })
+			.then(data => {
+				let newCurrentLocation = [];
+				for (let i in data.data) {
+					newCurrentLocation.push(data.data[i]);
+				}
+				this.setState({
+					currentLocation: newCurrentLocation
+				})
+				console.log('inside UserList', this.state.currentLocation)
 			})
-			console.log('inside UserList', this.state.currentLocation)
-		})
-		.catch(err=>console.log(err))
+			.catch(err => console.log(err))
 	}
 
 
 	handleKeyPress(e) {
-    if (e.key === 'Enter') {
-      this.getUserLocation();
-    }
+		if (e.key === 'Enter') {
+			this.getUserLocation();
+		}
+	}
+
+	async nextPage() {
+		await this.setState({
+			otherUsersLocations: [],
+			page: this.state.page + 1
+		})
+		await axios.post('/setNextPaginationPage', {page: this.state.page})
+		.then(()=>{
+			this.getUserList()
+		})
+		.catch(err=>console.log(err))
+	}
+
+	async prevPage() {
+		await this.setState({
+			otherUsersLocations: [],
+			page: this.state.page === 1 ? 1 : this.state.page - 1
+		})
+		await axios.post('/setPrevPaginationPage', {page: this.state.page})
+		.then(()=>{
+			this.getUserList()
+		})
+		.catch(err=>console.log(err))
 	}
 
 	componentDidMount() {
@@ -143,17 +170,18 @@ class UserList extends React.Component {
 	}
 
 
+
 	render() {
 		return (
-			<div style={{margin: '1.5em'}}>
-				<h2 style={{margin: '1.5em', fontFamily: 'Gugi, cursive'}}>Welcome Back {this.state.username}!</h2>
+			<div style={{ margin: '1.5em' }}>
+				<h2 style={{ margin: '1.5em', fontFamily: 'Gugi, cursive' }}>Welcome Back {this.state.username}!</h2>
 				<div >
-					<h3 style={{margin: '1.5em', fontFamily: 'Gugi, cursive'}}>Looking for a partner?</h3>
+					<h3 style={{ margin: '1.5em', fontFamily: 'Gugi, cursive' }}>Looking for a partner?</h3>
 					<br />
 					<Navbar color="faded" light>
-						<UncontrolledDropdown style={{margin: '1.5em'}}>
+						<UncontrolledDropdown style={{ margin: '1.5em' }}>
 							<ButtonDropdown isOpen={this.state.dropDownNTRP} toggle={this.toggleNTRP}>
-								<DropdownToggle caret style={{fontFamily: 'Gugi, cursive'}}>
+								<DropdownToggle caret style={{ fontFamily: 'Gugi, cursive' }}>
 									Desired Level
 								</DropdownToggle>
 								<DropdownMenu>
@@ -167,9 +195,9 @@ class UserList extends React.Component {
 								</DropdownMenu>
 							</ButtonDropdown>
 						</UncontrolledDropdown>
-						<UncontrolledDropdown style={{margin: '1.5em' }}>
+						<UncontrolledDropdown style={{ margin: '1.5em' }}>
 							<ButtonDropdown isOpen={this.state.dropDownStrengths} toggle={this.toggleStrengths}>
-								<DropdownToggle caret style={{fontFamily: 'Gugi, cursive'}}>
+								<DropdownToggle caret style={{ fontFamily: 'Gugi, cursive' }}>
 									Desired Strengths
 								</DropdownToggle>
 								<DropdownMenu>
@@ -186,51 +214,65 @@ class UserList extends React.Component {
 						</UncontrolledDropdown>
 
 					</Navbar>
-					<InputGroup style={{margin: '0.8em'}}>
+					<InputGroup style={{ margin: '0.8em' }}>
 						<InputGroupAddon addonType="prepend">
 							<InputGroupText>Zipcode: </InputGroupText>
 						</InputGroupAddon>
 						<Input onChange={(e) => { this.changeZipcode(e.target.value) }}
-							value = {this.state.currentZipcode || ''}
-							onKeyPress={(e)=>{this.handleKeyPress(e)}} />
+							value={this.state.currentZipcode || ''}
+							onKeyPress={(e) => { this.handleKeyPress(e) }} />
 					</InputGroup>
-					<div style={{fontFamily: 'Gugi, cursive', margin: '0.8em'}}>Desired Level: {this.state.desiredLevel}</div>
-					<div style={{fontFamily: 'Gugi, cursive', margin: '0.8em'}}>Desired Strengths: {
-						this.state.strengths.map(e=>{return (<span key={e}>{e + ", "}</span>)})
+					<div style={{ fontFamily: 'Gugi, cursive', margin: '0.8em' }}>Desired Level: {this.state.desiredLevel}</div>
+					<div style={{ fontFamily: 'Gugi, cursive', margin: '0.8em' }}>Desired Strengths: {
+						this.state.strengths.map(e => { return (<span key={e}>{e + ", "}</span>) })
 					}</div>
 
 				</div>
-				<br/>
+				<br />
+				<Map currentLocation={this.state.currentLocation} otherUsersLocations={this.state.otherUsersLocations} usersList={this.state.list} />
+
+				<Pagination aria-label="Page navigation example">
+					<PaginationItem>
+						<PaginationLink previous onClick={()=>{this.prevPage()}}/>
+					</PaginationItem>
+					<PaginationItem>
+						<PaginationLink next onClick={()=>{this.nextPage()}}/>
+					</PaginationItem>
+				</Pagination>
+
 				{this.state.list.length === 0
 					? (<div></div>)
-			    : this.state.list.map(e=> {
-						return (
-							<div
-								style={{  borderTop: '0.05em solid #e8eaed', borderBottom: '0.05em solid #e8eaed', paddingTop: '1em', paddingBottom: '1em'}}
-								key={e.username}
-								onClick={()=>{window.location = this.state.link}}
+					: (<div style={{ marginBotton: '3em' }}>
+						{this.state.list.map(e => {
+							return (
+								<div
+									style={{ borderTop: '0.05em solid #e8eaed', borderBottom: '0.05em solid #e8eaed', paddingTop: '1em', paddingBottom: '1em' }}
+									key={e.username}
+									onClick={() => { window.location = this.state.link }}
 								>
-                <img src={e.userThumbnail} style={{borderRadius: '50%',
-        					height: '2em',
-        					width: '2em',
-        					display: 'inline'}} />
-                <div style={{display: 'inline', padding:'1em'}}><strong>Username: </strong>{e.username}</div>
-                <div style={{display: 'inline', padding:'1em'}}><strong>Name: </strong>{e.firstName + " " +e.lastName}</div>
-                <div style={{display: 'inline', padding:'1em'}}><strong>City: </strong>{e.city}</div>
-                <div style={{display: 'inline', padding:'1em'}}><strong>Ntrp: </strong>{e.ntrp}</div>
-                <div style={{display: 'inline', padding:'1em'}}><strong>Strengths: </strong>{
-									e.strengths.map((str)=>{
-										return (<span key={str}>{str+", "}</span>)
-									})
+									<img src={e.userThumbnail} style={{
+										borderRadius: '50%',
+										height: '2em',
+										width: '2em',
+										display: 'inline'
+									}} />
+									<div style={{ display: 'inline', padding: '1em' }}><strong>Username: </strong>{e.username}</div>
+									<div style={{ display: 'inline', padding: '1em' }}><strong>Name: </strong>{e.firstName + " " + e.lastName}</div>
+									<div style={{ display: 'inline', padding: '1em' }}><strong>City: </strong>{e.city}</div>
+									<div style={{ display: 'inline', padding: '1em' }}><strong>Ntrp: </strong>{e.ntrp}</div>
+									<div style={{ display: 'inline', padding: '1em' }}><strong>Strengths: </strong>{
+										e.strengths.map((str) => {
+											return (<span key={str}>{str + ", "}</span>)
+										})
 									}</div>
-            	</div>
-						)
-					})
-				}
-				<Map currentLocation={this.state.currentLocation} otherUsersLocations={this.state.otherUsersLocations} usersList={this.state.list}/>
+								</div>
+							)
+						})
+						}
+					</div>)}
 			</div>
-				)
-			}
+		)
+	}
 }
 
 export default UserList;
