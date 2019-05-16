@@ -70,40 +70,47 @@ const geolib = require('geolib');
 //   })
 //   .then(data=>{console.log(data)})
 //   .catch(err=>console.log(err))
-const items = [92867, 92606, 90039, 90621, 90631, 92801, 92850]
-async function submitForm() {
+// const items = [92867, 92606, 90039, 90621, 90631, 92801, 92850]
+// async function submitForm() {
+// 	let options = {
+// 		username: await faker.internet.userName(),
+// 		firstName: await faker.name.firstName(),
+// 		lastName: await faker.name.lastName(),
+// 		password: 1,
+// 		email: await faker.internet.email(),
+// 		city: await faker.address.city(),
+// 		state: await faker.address.state(),
+// 		country: await faker.address.country(),
+// 		zipcode: items[Math.floor(Math.random()*items.length)],
+// 		ntrp: 4.5,
+// 		strengths: ['Strong Backhand', 'Strong Forehand']
+// 	}
+// 	await axios.post('http://localhost:3001/create', options)
+// 		.then(data => {
+// 			console.log(data.data)
+// 		})
+// 		.catch(err => {console.log(err);})
+// }
 
-	// console.log(this.state)
-	let options = {
-		username: await faker.internet.userName(),
-		firstName: await faker.name.firstName(),
-		lastName: await faker.name.lastName(),
-		password: 1,
-		email: await faker.internet.email(),
-		city: await faker.address.city(),
-		state: await faker.address.state(),
-		country: await faker.address.country(),
-		zipcode: items[Math.floor(Math.random()*items.length)],
-		ntrp: 4.5,
-		strengths: ['Strong Backhand', 'Strong Forehand']
-	}
-	await axios.post('http://localhost:3001/create', options)
-		.then(data => {
-			// if(data.data.errors) {
-			// 	console.log("error:", data.data.errors)
-			// 	// this.setState({
-			// 	// 	renderLogin: false
-			// 	// })
-			// } else {
-			// 	this.setState({
-			// 		renderLogin: true
-			// 	})
-			// }
-			console.log(data.data)
-		})
-		.catch(err => {console.log(err);})
-}
+// for (let i = 0; i < 10; i++){
+// 	submitForm();
+// }
 
-for (let i = 0; i < 1000; i++){
-	submitForm();
+const items = ['Huy', 'Idella99', 'Tierra13', 'Eden.Eichmann']
+// items[Math.floor(Math.random()*items.length)]
+// for (let i = 0; i < 100; i++) {
+let options = {
+	user: 'Huy',
+	roomUsers: [items[Math.floor(Math.random() * items.length)], items[Math.floor(Math.random() * items.length)]],
+	message: faker.lorem.sentences(),
+	withCredentials: true
 }
+axios.post('http://localhost:3001/checkPassword', {
+	username: 'Huy',
+	password: '1',
+}).then((data)=>{console.log(data)
+	axios.post('http://localhost:3001/postMessage', options)
+	.then(data => console.log(data))
+	.catch(err => console.log(err))
+}).catch(err=>console.log(err))
+// }

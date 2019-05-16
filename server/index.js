@@ -8,21 +8,27 @@ const createUser = require('../database-mongo/helper.js').createUser;
 const createMessage = require('../database-mongo/helper.js').createMessage;
 const db = require('../database-mongo/index.js').db;
 const app = express();
-// const cors = require('cors');
+const cors = require('cors');
 const key = require('../env.js').key;
 const axios = require('axios');
-// app.use(cors({origin: 'http://localhost:3001/'}));
+app.use(cors({credentials: true, origin: 'http://localhost:3001/'}));
+
+
 
 app.use(express.static(__dirname + '/../react-client/dist'));
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
 
 app.use(session({
+  name: 'sid',
   secret: 'MVP',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: {
-    maxAge: 360000
+    maxAge: 3600000,
+    httpOnly: true,
+    // sameSite: 'lax',
+    // domain: '.localhost:3001'
   },
   store: new MongoStore({ mongooseConnection: db })
 }))
@@ -70,6 +76,7 @@ app.post('/checkUserName', (req, res) => {
 });
 
 app.get('/isLoggedIn', (req, res) => {
+  console.log(req.session.user)
   if (req.session.user) {
     req.session.pageNumber = 1;
     res.json('true');
@@ -132,8 +139,9 @@ app.get('/getMessagingLink', (req, res) => {
   }
 })
 
-app.post('/createMessage', (req, res) => {
-  // console.log(req)
+app.post('/postMessage', (req, res) => {
+  console.log(req.headers);
+  console.log(req.session.user);
   if (req.session.user) {
     createMessage(
       req.body.user,
@@ -154,7 +162,8 @@ app.post('/createMessage', (req, res) => {
 })
 
 app.post('/usersList', (req, res) => {
-  // console.log(req);
+  console.log(req.headers);
+  console.log(req.session.user);
   let pointA = { latitude: null, longitude: null };
   let pointB = { latitude: null, longitude: null };
   async function getDistance(zipcode) {
@@ -218,6 +227,21 @@ app.post('/location', (req, res) => {
   axios.get(`https://maps.googleapis.com/maps/api/geocode/json?key=${key}&address=${req.body.zipcode}`)
     .then(data => res.json(data.data.results[0].geometry.location))
     .catch(err => res.json(err))
+})
+
+app.post('/setNewUser', (req,res)=> {
+  req.session.otherUser = req.body.otherUser;
+  res.json('New User Set')
+})
+
+app.post('/logout', (req,res)=> {
+  console.log(req.session)
+  if(req.session.user) {
+    req.session.destroy(()=>{
+      res.json('Logged out')
+    });
+  }
+
 })
 
 app.listen(3001, function () {

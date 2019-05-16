@@ -164,6 +164,11 @@ class UserList extends React.Component {
 		.catch(err=>console.log(err))
 	}
 
+	setNewUser(username) {
+		axios.post('/setNewUser', {otherUser: username}).then(data=>console.log(data))
+		.catch(err=>console.log(err))
+	}
+
 	componentDidMount() {
 		this.getUserName();
 		this.getMessagingService();
@@ -248,7 +253,10 @@ class UserList extends React.Component {
 								<div
 									style={{ borderTop: '0.05em solid #e8eaed', borderBottom: '0.05em solid #e8eaed', paddingTop: '1em', paddingBottom: '1em' }}
 									key={e.username}
-									onClick={() => { window.location = this.state.link }}
+									onClick={() => {
+										this.setNewUser(e.username)
+										window.open(`http://localhost:3002/`, "_blank")
+									}}
 								>
 									<img src={e.userThumbnail} style={{
 										borderRadius: '50%',
