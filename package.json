@@ -34,7 +34,7 @@
     "faker": "^4.1.0",
     "geolib": "^2.0.24",
     "google-maps-react": "^2.0.2",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "leaflet": "^1.5.1",
     "mongoose": "^4.8.6",
     "mysql": "^2.13.0",
