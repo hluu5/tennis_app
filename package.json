@@ -36,7 +36,7 @@
     "google-maps-react": "^2.0.2",
     "jquery": "^3.4.1",
     "leaflet": "^1.5.1",
-    "mongoose": "^4.8.6",
+    "mongoose": "^4.13.21",
     "mysql": "^2.13.0",
     "popper.js": "^1.15.0",
     "react": "^16.3.0",
